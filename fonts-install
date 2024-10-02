@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then    
+    FONT_DIR="$PWD"
+else
+    FONT_DIR="$1"
+fi
+
+if [ ! -d "$FONT_DIR" ]; then
+    echo "Directory not found: $FONT_DIR"
+    exit 1
+fi
+
+# Install fonts from the specified directory
+mkdir -p ~/.local/share/fonts
+
+# Copy all .ttf files from the specified directory to the user's font directory
+cp -r "$FONT_DIR"/*.ttf ~/.local/share/fonts
+
+# Update the font cache
+fc-cache -f -v
+
+echo "Fonts installed successfully from $FONT_DIR"

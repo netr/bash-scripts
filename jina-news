@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Check if a URL is provided
+if [ $# -eq 0 ]; then
+    echo "Usage: jina-news <URL>"
+    exit 1
+fi
+
+MODEL="claude-3-haiku"
+# Optional model parameter
+if [ $# -eq 2 ]; then
+    MODEL="$2"
+fi
+
+# System prompt for the LLM
+SYSTEM_PROMPT="Please summarize the article by providing: (1) the central topic, (2) the author's intended message, (3) key facts and insights, (4) informative examples or further potential research suggestions given by the auther, (5) any unique or noteworthy details, and (6) any possible bias or persuasive language intended to sway the reader to a specific side. Ensure the summary is concise, well-structured, and includes relevant context for a general audience. Bullet points and clear section separation are preferred for clarity."
+
+# Get the directory of this script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Log the URL and model used
+LOG_FILE="$SCRIPT_DIR/logs/jina-news.log"
+echo "$1:$MODEL" >> "$LOG_FILE"
+
+# Use the existing jina-text command to extract content, then pipe to llm
+if ! jina "$1" | llm -m "$MODEL" --system "$SYSTEM_PROMPT" | glow -; then
+    exit 1
+fi
